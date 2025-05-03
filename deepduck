@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>草莓蛋糕聊天屋</title>
+    <style>
+        /* 基础样式 */
+        body {
+            font-family: 'Comic Neue', cursive, 'Ma Shan Zheng', sans-serif;
+            background-color: #fff5f7;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+        
+        /* 蛋糕顶部装饰 */
+        .header {
+            background: linear-gradient(to right, #ff6b8b, #ff8fab);
+            color: white;
+            padding: 20px;
+            border-radius: 50px;
+            text-align: center;
+            width: 80%;
+            max-width: 600px;
+            margin-bottom: -30px;
+            z-index: 2;
+            position: relative;
+            box-shadow: 0 5px 15px rgba(255, 107, 139, 0.3);
+        }
+        
+        /* 聊天容器 - 蛋糕主体 */
+        .chat-container {
+            background: white;
+            border-radius: 30px;
+            width: 90%;
+            max-width: 800px;
+            height: 60vh;
+            padding: 50px 20px 20px;
+            box-shadow: 0 10px 30px rgba(255, 107, 139, 0.2);
+            overflow-y: auto;
+            margin-bottom: 20px;
+        }
+        
+        /* 消息气泡 */
+        .message {
+            max-width: 70%;
+            padding: 12px 18px;
+            margin: 10px;
+            border-radius: 20px;
+            position: relative;
+            animation: fadeIn 0.5s ease-out;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .user-message {
+            background: #f8d7da;
+            margin-left: auto;
+            border-bottom-right-radius: 5px;
+        }
+        
+        .bot-message {
+            background: white;
+            border: 2px dashed #ff9eb5;
+            margin-right: auto;
+            border-bottom-left-radius: 5px;
+        }
+        
+        /* 输入区域 */
+        .input-area {
+            display: flex;
+            width: 90%;
+            max-width: 800px;
+            margin-top: 20px;
+        }
+        
+        .chat-input {
+            flex: 1;
+            padding: 15px;
+            border: none;
+            border-radius: 50px 0 0 50px;
+            font-size: 16px;
+            box-shadow: 0 3px 10px rgba(255, 107, 139, 0.2);
+        }
+        
+        .send-btn {
+            background: #ff6b8b;
+            color: white;
+            border: none;
+            padding: 0 25px;
+            border-radius: 0 50px 50px 0;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(255, 107, 139, 0.3);
+        }
+        
+        .send-btn:hover {
+            background: #ff4d6d;
+        }
+        
+        /* 浮动的小草莓 */
+        .strawberry {
+            position: fixed;
+            width: 40px;
+            height: 40px;
+            background: #ff6b8b;
+            border-radius: 50% 50% 50% 50%/60% 60% 40% 40%;
+            animation: float 6s ease-in-out infinite;
+            z-index: -1;
+            opacity: 0.6;
+        }
+        
+        @keyframes float {
+            0%, 100% { transform: translate(0, 0) rotate(0deg); }
+            25% { transform: translate(10px, -20px) rotate(5deg); }
+            50% { transform: translate(20px, 0px) rotate(0deg); }
+            75% { transform: translate(10px, 20px) rotate(-5deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 蛋糕顶部 -->
+    <div class="header">
+        <h1>🍓 草莓蛋糕聊天屋 🍰</h1>
+    </div>
+    
+    <!-- 聊天容器 -->
+    <div class="chat-container" id="chat-container">
+        <!-- 欢迎消息 -->
+        <div class="message bot-message">
+            欢迎来到草莓蛋糕屋~<br>
+            今天想聊些什么呢？(๑´ڡ`๑)
+        </div>
+    </div>
+    
+    <!-- 输入区域 -->
+    <div class="input-area">
+        <input type="text" class="chat-input" placeholder="输入你想说的话..." id="user-input">
+        <button class="send-btn" id="send-btn">发送</button>
+    </div>
+    
+    <!-- 浮动的小草莓背景元素 -->
+    <div class="strawberry" style="top: 20%; left: 10%;"></div>
+    <div class="strawberry" style="top: 70%; left: 85%; animation-delay: 1s;"></div>
+    <div class="strawberry" style="top: 40%; left: 75%; animation-delay: 2s;"></div>
+    
+    <script>
+        // ======================
+        // 🍰 可爱对话系统
+        // ======================
+        const cuteResponses = [
+            {
+                triggers: ["你好", "嗨", "hello", "hi"],
+                replies: [
+                    "ฅ^•ﻌ•^ฅ 喵喵~欢迎来到草莓蛋糕小屋！",
+                    "(◕‿◕)✨ 呀！发现一只可爱的人类！",
+                    "🍰 你好呀~要尝尝我刚烤的杯子蛋糕吗？"
+                ]
+            },
+            {
+                triggers: ["爱你", "喜欢", "love"],
+                replies: [
+                    "(⁄ ⁄•⁄ω⁄•⁄ ⁄) 哎呀突然表白...人家要融化成草莓酱啦~",
+                    "💖 噗通！——（这是小鹿乱撞的声音）",
+                    "喵呜~我也...也最喜欢你了！(偷偷塞给你一块心形饼干)"
+                ]
+            },
+            {
+                triggers: ["吗？", "么？", "吗", "么"],
+                replies: [
+                    "当然啦~就像草莓和奶油永远是最佳CP一样确定！",
+                    "(歪头思考三秒) 喵觉得...应该可以！",
+                    "🍓 让草莓精灵告诉你答案——可以哟！"
+                ]
+            },
+            {
+                triggers: ["为什么", "为何", "为啥"],
+                replies: [
+                    "(捧着脸颊) 因为...这是蛋糕宇宙的甜蜜法则呀~",
+                    "ฅ(´･ω･`)ฅ 唔...这个问题要问魔法烤箱呢！",
+                    "✨ 叮！答案烤好啦~因为这样更可爱！"
+                ]
+            }
+        ];
+
+        // 获取DOM元素
+        const chatContainer = document.getElementById('chat-container');
+        const userInput = document.getElementById('user-input');
+        const sendBtn = document.getElementById('send-btn');
+        
+        // 添加消息函数
+        function addMessage(text, isUser) {
+            const messageDiv = document.createElement('div');
+            messageDiv.className = isUser ? 'message user-message' : 'message bot-message';
+            messageDiv.textContent = text;
+            chatContainer.appendChild(messageDiv);
+            chatContainer.scrollTop = chatContainer.scrollHeight;
+        }
+        
+        // 获取可爱回复
+        function getCuteResponse(text) {
+            text = text.toLowerCase();
+            
+            // 检查触发词
+            for (const item of cuteResponses) {
+                for (const trigger of item.triggers) {
+                    if (text.includes(trigger)) {
+                        return item.replies[Math.floor(Math.random() * item.replies.length)];
+                    }
+                }
+            }
+            
+            // 默认随机回复
+            const defaultReplies = [
+                "🍓（递出草莓）这个给你~继续说嘛！",
+                "(。-ω-)zzz 啊抱歉！刚才在蛋糕里睡着了...",
+                "✨ 检测到甜甜的问题！正在调取答案~",
+                "喵呜~能再说一遍吗？（竖起耳朵）",
+                "（突然变成小猫）喵？这个我不太懂呢~",
+                "🍰 这个问题要配上草莓蛋糕思考才行！",
+                "(｡•́︿•̀｡) 人家的小脑瓜转不过来了啦~"
+            ];
+            return defaultReplies[Math.floor(Math.random() * defaultReplies.length)];
+        }
+        
+        // 发送消息
+        function sendMessage() {
+            const text = userInput.value.trim();
+            if (text) {
+                addMessage(text, true);
+                userInput.value = '';
+                
+                // 模拟思考时间
+                setTimeout(() => {
+                    const response = getCuteResponse(text);
+                    addMessage(response, false);
+                }, 800);
+            }
+        }
+        
+        // 事件监听
+        sendBtn.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendMessage();
+        });
+    </script>
+</body>
+</html>
